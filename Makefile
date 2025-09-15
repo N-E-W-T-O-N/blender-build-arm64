@@ -1,10 +1,13 @@
 IMAGE_NAME := blender-builder
 
 build: build-image
-	docker run --rm --platform="linux/arm64" \
+	run
+
+run:
+	docker run --rm -it --platform="linux/arm64" \
 	-v ${PWD}/blender-git:/blender-git \
-    -v ${PWD}/compile.sh:/compile.sh \
-	${IMAGE_NAME}
+	-v ${PWD}/compile.sh:/compile.sh \
+	${IMAGE_NAME} /bin/bash
 
 build-compose:
 	docker compose build
@@ -15,5 +18,5 @@ build-image:
 
 correct:
 	docker run --rm --privileged tonistiigi/binfmt --install all 
-	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes -c yes 
+	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes -c yes
 
