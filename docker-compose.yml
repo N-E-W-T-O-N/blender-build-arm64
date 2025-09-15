@@ -1,0 +1,8 @@
+services:
+  blender:
+    build: .
+    platform: linux/arm64
+    volumes:
+      - "./blender-git:/blender-git:rw"
+      #- "./dependencies:/dependencies:rw"
+
