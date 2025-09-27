@@ -79,13 +79,17 @@ RUN mkdir -p /opt/cmake \
 RUN cmake --version
 
 # ---------------------------------------------------------------------- 
-RUN echo "Cloning MaterialX" 
-RUN mkdir -p /blender-git/materialx && \
-    wget -q https://github.com/AcademySoftwareFoundation/MaterialX/releases/download/v1.39.4/MaterialX_Linux_GCC_14_Python312.zip -O /tmp/materialx.zip && \
-    unzip /tmp/materialx.zip -d /blender-git/materialx && \
-    rm /tmp/materialx.zip && \
+
+RUN  echo "Cloning MaterialX" && \
+    git clone https://github.com/AcademySoftwareFoundation/MaterialX -b v1.39.4 --depth=1 --recursive /tmp/materialx && \
+    mkdir -p /tmp/materialx/build && cd /tmp/materialx/build && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DMATERIALX_BUILD_GRAPH_EDITOR=OFF -DMATERIALX_BUILD_PYTHON=ON \
+	-DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_VIEWER=OFF -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" .. && \
+    cmake --build .  && \
+    cmake --install . && \
+    rm -rf /tmp/materialx && \
     echo "Done Installing MaterialX"
-ENV MaterialX_DIR="/blender-git/materialx/"
+#ENV MaterialX_DIR="/blender-git/materialx/"
 
 # ----------------------------------------------------------------------
 # Install SSE2NEON headers
@@ -173,23 +177,25 @@ RUN echo "Building Manifold v3.2.1" && \
       -DCMAKE_INSTALL_PREFIX=/usr/local \
       -DBUILD_SHARED_LIBS=ON \
       -DBUILD_TESTING=OFF \
-      -DBUILD_GMOCK=OFF \
+    #  -DBUILD_GMOCK=OFF \
       -DMANIFOLD_TEST=OFF \
       -DMANIFOLD_DEBUG=OFF \
       -DMANIFOLD_STRICT=ON \
-      -DMANIFOLD_PAR=OFF \
+      -DMANIFOLD_PAR=ON \
       -DMANIFOLD_CROSS_SECTION=ON \
       -DMANIFOLD_CBIND=ON \
+      -DMANIFOLD_PYBIND=ON \
       -DMANIFOLD_EXPORT=OFF \
+      -DMANIFOLD_DOWNLOADS=ON \
       -DMANIFOLD_USE_BUILTIN_TBB=OFF \
-      -DMANIFOLD_USE_BUILTIN_CLIPPER2=OFF \
+      -DMANIFOLD_USE_BUILTIN_CLIPPER2=ON \
       -DMANIFOLD_USE_BUILTIN_NANOBIND=OFF \
       -DClipper2_DIR=/usr/lib/aarch64-linux-gnu/cmake/Clipper2 \
-      -DTBB_ROOT=/usr/local \
-      -DTBB_DIR=/usr/local/lib/cmake/TBB \
+    #  -DFETCHCONTENT_SOURCE_DIR_TBB=/usr/local \
+    #  -DTBB_DIR=/usr/local/lib/cmake/TBB \
       -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" \
-      -DFETCHCONTENT_DOWNLOADS=OFF \
-      -DFETCHCONTENT_QUIET=ON && \
+    #  -DFETCHCONTENT_DOWNLOADS=OFF \
+      -DFETCHCONTENT_QUIET=OFF && \
     cmake --build . && \
     cmake --install . && \
     rm -rf /tmp/manifold
@@ -205,6 +211,7 @@ RUN git clone --branch v4.4.0 --single-branch https://github.com/RenderKit/embre
     # Configure with cmake directly (non-interactive)
     cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" \
     -DEMBREE_TUTORIALS=OFF \
     -DEMBREE_SYCL_SUPPORT=OFF \
     -DEMBREE_ISPC_SUPPORT=OFF \
@@ -215,7 +222,7 @@ RUN git clone --branch v4.4.0 --single-branch https://github.com/RenderKit/embre
     && make  &&\
     make install
     
- #    -DEMBREE_TUTORIALS_GLFW=OFF  -DEMBREE_BUILD_GLFW_FROM_SOURCE=OFF \-DCMAKE_INSTALL_PREFIX=/blender-git/embree/install\    
+#    -DEMBREE_TUTORIALS_GLFW=OFF  -DEMBREE_BUILD_GLFW_FROM_SOURCE=OFF \-DCMAKE_INSTALL_PREFIX=/blender-git/embree/install\    
 # ----------------------------------------------------------------------
 # Build Alembic 1.8.8
 RUN echo "Building Alembic" && \
@@ -234,25 +241,39 @@ rm -rf /tmp/alembic
 
 # No need to build Imath: libimath-dev is already installed and will be found by CMake
 # ----------------------------------------------------------------------
-    
+
+#RUN find /usr -name "*embree*"  
 # Build OpenUSD v25.08
 #-DOpenSubdiv_DIR=/usr/lib/aarch64-linux-gnu/cmake/OpenSubdiv \
 #-DTBB_DIR=/usr/lib/aarch64-linux-gnu/cmake/TBB \
-RUN echo "Building OpenUSD v25.05.01 " && \
+RUN --mount=type=cache,target=usd echo "Building OpenUSD v25.05.01 " && \
     git clone https://github.com/PixarAnimationStudios/OpenUSD/ -b v25.05.01 --depth=1 /tmp/usd && \
     mkdir -p /tmp/usd/build && cd /tmp/usd/build && \
     cmake .. \
       -G Ninja \
+      -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=/usr/local \
       -DBUILD_SHARED_LIBS=ON \
       -DTBB_ROOT=/usr/local \
-      -DOPENSUBDIV_ROOT_DIR=/usr/local \
-      -DPXR_BUILD_ALEMBIC_PLUGIN=OFF \
+     # -DEMBREE_ROOT=/usr/local \
+      -DEMBREE_INCLUDE_DIR=/usr/local/include/embree4 \
+      -DEMBREE_LIBRARY=/usr/local/lib/libembree4.so \
+      -DMaterialX_ROOT=/usr/local \
+     # -DOPENSUBDIV_ROOT_DIR=/usr/local \
+\ 
+      -DPXR_BUILD_ANIMX_TESTS=OFF \ 
       -DPXR_BUILD_DRACO_PLUGIN=OFF \
-      -DPXR_BUILD_EMBREE_PLUGIN=OFF \
-      -DPXR_BUILD_OPENCOLORIO_PLUGIN=OFF \
-      -DPXR_BUILD_OPENIMAGEIO_PLUGIN=OFF \
+    #  -DPXR_BUILD_EMBREE_PLUGIN=OFF \
+      -DPXR_BUILD_EMBREE_PLUGIN=ON \
+          -DPXR_BUILD_ALEMBIC_PLUGIN=ON \
+    #  -DPXR_BUILD_ALEMBIC_PLUGIN=OFF \
+      -DPXR_BUILD_OPENCOLORIO_PLUGIN=ON \
+      -DPXR_BUILD_OPENIMAGEIO_PLUGIN=ON \
+      -DPXR_ENABLE_MATERIALX_SUPPORT=ON \
+      -DPXR_ENABLE_OPENVDB_SUPPORT=ON \
+      -DPXR_BUILD_USD_TOOLS=ON \
+      \
       -DPXR_BUILD_PRMAN_PLUGIN=OFF \
       -DPXR_BUILD_USDVIEW=OFF \
       -DPXR_BUILD_EXAMPLES=OFF \
@@ -262,17 +283,14 @@ RUN echo "Building OpenUSD v25.05.01 " && \
       -DPXR_BUILD_HTML_DOCUMENTATION=OFF \
       -DPXR_BUILD_PYTHON_DOCUMENTATION=OFF \
       -DPXR_BUILD_EXEC=ON \
-      -DPXR_BUILD_USD_TOOLS=ON \
       -DPXR_BUILD_USD_VALIDATION=ON \
-      -DPXR_ENABLE_GL_SUPPORT=OFF \
+      -DPXR_ENABLE_GL_SUPPORT=ON \
       -DPXR_ENABLE_HDF5_SUPPORT=OFF \
-      -DPXR_ENABLE_MATERIALX_SUPPORT=OFF \
       -DPXR_ENABLE_METAL_SUPPORT=OFF \
-      -DPXR_ENABLE_OPENVDB_SUPPORT=OFF \
       -DPXR_ENABLE_OSL_SUPPORT=OFF \
       -DPXR_ENABLE_PRECOMPILED_HEADERS=OFF \
       -DPXR_ENABLE_PTEX_SUPPORT=OFF \
-      -DPXR_ENABLE_PYTHON_SUPPORT=OFF \
+      -DPXR_ENABLE_PYTHON_SUPPORT=ON \
       -DPXR_ENABLE_VULKAN_SUPPORT=OFF \
       -DPXR_HEADLESS_TEST_MODE=OFF \
       -DPXR_PREFER_SAFETY_OVER_SPEED=ON \
@@ -283,23 +301,26 @@ RUN echo "Building OpenUSD v25.05.01 " && \
     echo "OpenUSD build complete"
 
 
+#"------------------------PipeWire-------------------------------------"
+#pwd
+#ls -A /blender-git/pipewire
+#find /blender-git/pipewire
+# PipeWire
+RUN echo "Building PipeWire v1.4.8 " &&\
+    git clone https://github.com/PipeWire/pipewire --branch 1.4.8 --depth=1 /blender-git/pipewire &&\
+    mkdir -p /tmp/pipewire/build && cd /tmp/pipewire/build && \
+    # Configure (set Release build, install prefix to /usr/local)
+    meson setup . .. --buildtype=release --backend=ninja --Dprefix=/usr/local  -Dtests=disabled -Ddocs=disabled -Dexamples=disabled \
+        -Dinstalled_tests=disabled -Dlibcamera=disabled -Dcompress-offload=disabled -Djack=disabled  -Decho-cancel-webrtc=disabled \
+        -Daudiotestsrc=disabled -Dsnap=disabled &&\
+         #-Daudioconvert=disabled -Daudiomixer=disabled -Dspa-plugins=disabled \
+     #-Dlibcamera=disabled -Dsystemd=disabled -Dbluez5=disabled \ 
+   #  meson configure  .. Check COnfig 
+    # Build
+   meson compile -C . && \
+  # Install (may need sudo depending on prefix)
+   meson install -C .
 
-
-    
-# ----------------------------------------------------------------------
-
-
-# Further build steps for Blender below...
-# -----
-# Copy multiple .deb packages to the container's /tmp/dep directory
-# COPY /deb/*.deb /tmp/dep/
-
-# # Install the packages
-# RUN dpkg -i --force-depends /tmp/dep/*.deb || true && \
-# # Fix any missing dependencies
-#     apt-get install -f -y --fix-broken && \
-# # Delete the .deb files after installation
-#     rm -rf /tmp/dep
 
 # In case depot_tools expects pip-installed deps, ensure it’s covered:
 #RUN pip install --no-cache-dir httplib2 httplib2[socks] PySocks six pyasn1 pyasn1-modules urllib3
