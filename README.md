@@ -25,13 +25,13 @@ This project provides a Docker setup for running Blender on arm64 Linux systems.
 2. **Build the Docker image:**
 
     ```bash
-    make build-image
+    docker buildx build --platform linux/arm64 --progress=plain --load     -t blender-builder     -t newton2022/blender-builder  -t newton2022/blender-builder:arm64  .
     ```
 
 3. **Run Blender in a container:**
 
     ```bash
-    make build
+       docker run --rm -it --platform="linux/arm64"  -v ${PWD}/blender-git:/blender-git -v ${PWD}/compile.sh:/compile.sh  blender-builder 
     ```
 
 ## Customization
