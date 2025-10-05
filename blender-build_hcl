@@ -1,0 +1,43 @@
+# Docker Buildx Bake Configuration for Blender Builder
+# Usage: docker buildx bake --set "*.args.USER_ID=myusername"
+
+variable "USER_ID" {
+  default = "defaultuser"
+}
+
+variable "CACHE_FROM" {
+  default = "type=local,src=./cache"
+}
+
+variable "CACHE_TO" {
+  default = "type=local,dest=./cache,mode=max"
+}
+
+group "default" {
+  targets = ["blender-builder"]
+}
+
+target "blender-builder" {
+  dockerfile = "Dockerfile"
+  context = "."
+  
+  platforms = ["linux/arm64"]
+  
+  tags = [
+    "blender-builder",
+    "${USER_ID}/blender-builder",
+    "${USER_ID}/blender-builder:arm64"
+  ]
+  
+  args = {
+    USER_ID = "${USER_ID}"
+  }
+  
+  cache-from = ["${CACHE_FROM}"]
+  cache-to = ["${CACHE_TO}"]
+  
+  output = ["type=docker"]
+  
+  # Progress output
+  progress = "plain"
+}
