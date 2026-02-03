@@ -48,6 +48,7 @@ RUN git clone -b ${OPENPGL_VERSION} --single-branch --depth=1 \
       -DOPENPGL_ISA_NEON=ON \
       -DOPENPGL_BUILD_TOOLS=OFF \
       -DOPENPGL_EF_IMAGE_SPACE_GUIDING_BUFFER=OFF \
+      -DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON \
       -DTBB_DIR=/usr/lib/aarch64-linux-gnu/cmake/TBB && \
       cmake --build openpgl/build && \
       cmake --install openpgl/build
