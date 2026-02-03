@@ -47,9 +47,11 @@ RUN git clone -b ${OPENPGL_VERSION} --single-branch --depth=1 \
       -DCMAKE_INSTALL_PREFIX=/usr/local \
       -DOPENPGL_ISA_NEON=ON \
       -DOPENPGL_BUILD_TOOLS=OFF \
-      -DOPENPGL_EF_IMAGE_SPACE_GUIDING_BUFFER=OFF && \
-    cmake --build openpgl/build && \
-    cmake --install openpgl/build
+      -DOPENPGL_EF_IMAGE_SPACE_GUIDING_BUFFER=OFF \
+      -DTBB_DIR=/usr/lib/aarch64-linux-gnu/cmake/TBB && \
+      cmake --build openpgl/build && \
+      cmake --install openpgl/build
+
 #     -DOPENPGL_TBB_ROOT=/usr/local && \
 # --------------------------------------------------
 # Manifold 3.2.1
