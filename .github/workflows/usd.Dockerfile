@@ -4,7 +4,7 @@ FROM newton2022/blender-builder:24-prebuilder
 ARG USD_VERSION=v25.11
 WORKDIR /tmp
 
-RUN git clone --branch${USD_VERSION} --depth=1 https://github.com/PixarAnimationStudios/OpenUSD/ OpenUSD && \
+RUN git clone --branch ${USD_VERSION} --depth=1 https://github.com/PixarAnimationStudios/OpenUSD/ OpenUSD && \
     mkdir OpenUSD/build && cd OpenUSD/build && \
     cmake .. -GNinja \
     -DCMAKE_INSTALL_PREFIX=/usr/local \
