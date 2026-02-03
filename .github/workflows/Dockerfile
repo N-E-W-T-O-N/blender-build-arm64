@@ -5,7 +5,7 @@ FROM newton2022/blender-builder:24-prebuilder AS prebuilder
 
 ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /tmp
-RUN apt-get update && apt-get install -y cmake ninja-build git
+RUN apt-get update && apt-get install -y cmake ninja-build git libtbb-dev
 # --------------------------------------------------
 # MaterialX 1.39.4
 # --------------------------------------------------
@@ -47,11 +47,10 @@ RUN git clone -b ${OPENPGL_VERSION} --single-branch --depth=1 \
       -DCMAKE_INSTALL_PREFIX=/usr/local \
       -DOPENPGL_ISA_NEON=ON \
       -DOPENPGL_BUILD_TOOLS=OFF \
-      -DOPENPGL_EF_IMAGE_SPACE_GUIDING_BUFFER=OFF \
-      -DOPENPGL_TBB_ROOT=/usr/local && \
+      -DOPENPGL_EF_IMAGE_SPACE_GUIDING_BUFFER=OFF && \
     cmake --build openpgl/build && \
     cmake --install openpgl/build
-
+#     -DOPENPGL_TBB_ROOT=/usr/local && \
 # --------------------------------------------------
 # Manifold 3.2.1
 # --------------------------------------------------

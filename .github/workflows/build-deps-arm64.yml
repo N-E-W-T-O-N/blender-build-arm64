@@ -42,4 +42,4 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: |
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blender-builder:${{ inputs.target }}-arm64
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blender-builder:${{ inputs.target }}
