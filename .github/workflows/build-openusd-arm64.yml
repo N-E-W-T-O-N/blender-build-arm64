@@ -1,9 +1,6 @@
 name: Build & Push OpenUSD (ARM64)
 
 on:
-  push:
-    branches:
-      - workflow
   workflow_dispatch:
 
 jobs:
@@ -33,6 +30,10 @@ jobs:
           file: .github/workflows/usd.Dockerfile
           platforms: linux/arm64
           push: true
+          args :
+            USD_VERSION: v25.11
           tags: |
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/openusd:v25.08-arm64
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/openusd:latest-arm64
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blender-builder:openusd
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blender-builder:usd
+
+
