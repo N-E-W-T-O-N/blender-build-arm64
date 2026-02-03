@@ -30,7 +30,7 @@ jobs:
           file: .github/workflows/usd.Dockerfile
           platforms: linux/arm64
           push: true
-          args :
+          args : |
             USD_VERSION: v25.11
           tags: |
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blender-builder:openusd
