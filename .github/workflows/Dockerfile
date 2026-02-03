@@ -10,11 +10,10 @@ RUN apt-get update && apt-get install -y cmake ninja-build git libtbb-dev
 # MaterialX 1.39.4
 # --------------------------------------------------
 FROM prebuilder AS build_materialx
-
 ARG MaterialX_VERSION=v1.39.4
-
 RUN git clone -b ${MaterialX_VERSION} --single-branch --depth=1 \
   https://github.com/AcademySoftwareFoundation/MaterialX.git materialx && \
+  mkdir materialx/build && cd materialx/build && \
   cmake -S materialx -B materialx/build -GNinja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/usr/local \
@@ -26,32 +25,40 @@ RUN git clone -b ${MaterialX_VERSION} --single-branch --depth=1 \
   cmake --build materialx/build && \
   cmake --install materialx/build
 
-RUN echo "Cloning MaterialX" && \
-  git clone  --depth=1 https://github.com/AcademySoftwareFoundation/MaterialX.git materialx && \
-  mkdir materialx/build && cd materialx/build && \
-  cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
-  -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_TESTS=OFF \
-  -DMATERIALX_BUILD_VIEWER=OFF -DMATERIALX_BUILD_GRAPH_EDITOR=OFF \
-  -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" && \
-  cmake --build . && cmake --install . 
 # --------------------------------------------------
 # OpenPGL 0.7.1 (ARM64 NEON)
 # --------------------------------------------------
 FROM prebuilder AS build_openpgl
 
 ARG OPENPGL_VERSION=v0.7.1
+
 RUN git clone -b ${OPENPGL_VERSION} --single-branch --depth=1 \
   https://github.com/RenderKit/openpgl openpgl && \
-  sed -i 's/FIND_PACKAGE(TBB REQUIRED ${OPENPGL_TBB_COMPONENT})/find_package(TBB CONFIG REQUIRED)/' \
-  openpgl/CMakeLists.txt && \
-  cmake -S openpgl -B openpgl/build -GNinja \
-  -DCMAKE_BUILD_TYPE=Release \
+  cmake -S openpgl/superbuild -B build -GNinja \
   -DCMAKE_INSTALL_PREFIX=/usr/local \
-  -DOPENPGL_ISA_NEON=ON \
-  -DOPENPGL_BUILD_TOOLS=OFF \
-  -DOPENPGL_EF_IMAGE_SPACE_GUIDING_BUFFER=OFF && \
-  cmake --build openpgl/build && \
-  cmake --install openpgl/build
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_TBB=ON \
+  -DBUILD_TBB_FROM_SOURCE=ON \
+  -DBUILD_OIDN=ON \
+  -DBUILD_OIDN_FROM_SOURCE=ON \
+  -DBUILD_TOOLS=OFF \
+  -DBUILD_STATIC=OFF \
+  -DBUILD_JOBS=$(nproc) && \
+  cmake --build build
+
+
+# RUN git clone -b ${OPENPGL_VERSION} --single-branch --depth=1 \
+#   https://github.com/RenderKit/openpgl openpgl && \
+#   sed -i 's/FIND_PACKAGE(TBB REQUIRED ${OPENPGL_TBB_COMPONENT})/find_package(TBB CONFIG REQUIRED)/' \
+#   openpgl/CMakeLists.txt && \
+#   cmake -S openpgl -B openpgl/build -GNinja \
+#   -DCMAKE_BUILD_TYPE=Release \
+#   -DCMAKE_INSTALL_PREFIX=/usr/local \
+#   -DOPENPGL_ISA_NEON=ON \
+#   -DOPENPGL_BUILD_TOOLS=OFF \
+#   -DOPENPGL_EF_IMAGE_SPACE_GUIDING_BUFFER=OFF && \
+#   cmake --build openpgl/build && \
+#   cmake --install openpgl/build
 
 #     -DOPENPGL_TBB_ROOT=/usr/local && \
 # --------------------------------------------------
