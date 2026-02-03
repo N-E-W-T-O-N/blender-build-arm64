@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM newton2022/blender-builder:24-prebuilder AS odin-builder
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -6,19 +6,19 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     git \
     wget \
-    python3 \
-    ca-certificates \
     libtbb-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # ISPC
-RUN wget -q https://github.com/ispc/ispc/releases/download/v1.23.0/ispc-v1.23.0-linux.tar.gz \
-    && tar -xzf ispc-v1.23.0-linux.tar.gz \
-    && mv ispc-v1.23.0-linux /opt/ispc \
-    && rm ispc-v1.23.0-linux.tar.gz
+RUN echo "Add ISPC" && mkdir -p /opt/ispc && \
+    wget -q https://github.com/ispc/ispc/releases/download/v1.29.1/ispc-v1.29.1-linux.aarch64.tar.gz \
+        -O ispc.tar.gz && \
+    tar -xzf ispc.tar.gz -C /opt/ispc --strip-components=1 && \
+    rm ispc.tar.gz
 
+ARG ODIN_VERSION=v2.4.1
 # Build OIDN
-RUN wget -q https://github.com/RenderKit/oidn/releases/download/v2.4.1/oidn-2.4.1.src.tar.gz \
+RUN wget -q https://github.com/RenderKit/oidn/releases/download/v${ODIN_VERSION}/oidn-${ODIN_VERSION}.src.tar.gz \
     -O oidn.tar.gz && \
     mkdir oidn && \
     tar -xzf oidn.tar.gz -C oidn --strip-components=1 && \
@@ -34,6 +34,4 @@ RUN wget -q https://github.com/RenderKit/oidn/releases/download/v2.4.1/oidn-2.4.
       -DOIDN_INSTALL_DEPENDENCIES=ON \
       -DCMAKE_INSTALL_PREFIX=/usr/local \
       -DISPC_EXECUTABLE=/opt/ispc/bin/ispc && \
-    cmake --build . && \
-    cmake --install . && \
-    cd / && rm -rf oidn
+    cmake --build . && cmake --install . 
