@@ -42,7 +42,8 @@ FROM prebuilder AS build_openpgl
 ARG OPENPGL_VERSION=v0.7.1
 RUN git clone -b ${OPENPGL_VERSION} --single-branch --depth=1 \
   https://github.com/RenderKit/openpgl openpgl && \
-  sed -i 's/find_package(TBB REQUIRED)/find_package(TBB CONFIG REQUIRED)/' openpgl/CMakeLists.txt && \
+  sed -i 's/FIND_PACKAGE(TBB REQUIRED ${OPENPGL_TBB_COMPONENT})/find_package(TBB CONFIG REQUIRED)/' \
+  openpgl/CMakeLists.txt && \
   cmake -S openpgl -B openpgl/build -GNinja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/usr/local \
@@ -57,7 +58,7 @@ RUN git clone -b ${OPENPGL_VERSION} --single-branch --depth=1 \
 # Manifold 3.2.1
 # --------------------------------------------------
 FROM prebuilder AS build_manifold
-Arg MANIFOLD_VERSION=v3.3.2
+ARG MANIFOLD_VERSION=v3.3.2
 RUN git clone -b ${MANIFOLD_VERSION} --single-branch --depth=1 \
   https://github.com/elalish/manifold manifold && \
   cmake -S manifold -B manifold/build -GNinja \
