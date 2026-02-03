@@ -16,22 +16,22 @@ RUN echo "Add ISPC" && mkdir -p /opt/ispc && \
     tar -xzf ispc.tar.gz -C /opt/ispc --strip-components=1 && \
     rm ispc.tar.gz
 
-ARG ODIN_VERSION=2.4.1
+ARG OIDN_VERSION=2.4.1
 # Build OIDN
-RUN wget -q https://github.com/RenderKit/oidn/releases/download/v${ODIN_VERSION}/oidn-${ODIN_VERSION}.src.tar.gz \
+RUN wget -q https://github.com/RenderKit/oidn/releases/download/v${OIDN_VERSION}/oidn-${OIDN_VERSION}.src.tar.gz \
     -O oidn.tar.gz && \
     mkdir oidn && \
     tar -xzf oidn.tar.gz -C oidn --strip-components=1 && \
     rm oidn.tar.gz && \
-    cd oidn && mkdir build && cd build && \
-    cmake .. -GNinja \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DOIDN_APPS=OFF \
-      -DOIDN_DEVICE_HIP=OFF \
-      -DOIDN_DEVICE_CUDA=OFF \
-      -DOIDN_DEVICE_SYCL=OFF \
-      -DOIDN_DEVICE_METAL=OFF \
-      -DOIDN_INSTALL_DEPENDENCIES=ON \
-      -DCMAKE_INSTALL_PREFIX=/usr/local \
-      -DISPC_EXECUTABLE=/opt/ispc/bin/ispc && \
-    cmake --build . && cmake --install . 
+    cd oidn && \
+    /opt/venv/bin/python scripts/build.py install \
+    --config Release \
+    --install_dir /usr/local \
+    -D OIDN_APPS=OFF \
+    -D OIDN_DEVICE_CPU=ON \
+    -D OIDN_DEVICE_HIP=OFF \
+    -D OIDN_DEVICE_CUDA=OFF \
+    -D OIDN_DEVICE_SYCL=OFF \
+    -D OIDN_DEVICE_METAL=OFF
+
+
