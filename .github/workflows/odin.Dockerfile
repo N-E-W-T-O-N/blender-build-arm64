@@ -16,7 +16,7 @@ RUN echo "Add ISPC" && mkdir -p /opt/ispc && \
     tar -xzf ispc.tar.gz -C /opt/ispc --strip-components=1 && \
     rm ispc.tar.gz
 
-ARG ODIN_VERSION=v2.4.1
+ARG ODIN_VERSION=2.4.1
 # Build OIDN
 RUN wget -q https://github.com/RenderKit/oidn/releases/download/v${ODIN_VERSION}/oidn-${ODIN_VERSION}.src.tar.gz \
     -O oidn.tar.gz && \
