@@ -21,9 +21,10 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt install -y \
     # Core build tools
     # gcc-14 g++-14 libtbb-dev \
-    cmake ninja-build git \
+    cmake ninja-build git ccache \
     build-essential git git-lfs ninja-build meson pkg-config subversion \
     autoconf automake bison libtool yasm tcl patchelf wget tar \
+    python3.11-full cython3 \
     python3.11-dev pybind11-dev alembic libpython3-dev libhpdf-dev libyaml-cpp-dev libsystemd-dev dpkg \
     \
     # System libraries

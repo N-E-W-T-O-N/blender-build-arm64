@@ -1,13 +1,12 @@
-IMAGE_NAME := blender-builder
+IMAGE_NAME := "newton2022/blender-builder"
 
-build: build-image
-	run
+build: build-image run
 
 run:
 	docker run --rm -it --platform="linux/arm64" \
-	-v ${PWD}/blender-git:/blender-git \
+	-v ${PWD}/blender-git:/blender-git:final \
 	-v ${PWD}/compile.sh:/compile.sh \
-	${IMAGE_NAME} /bin/bash
+	${IMAGE_NAME}:final
 
 build-compose:
 	docker compose build
@@ -15,6 +14,9 @@ build-compose:
 
 build-image:
     docker buildx build --platform linux/arm64 --progress=plain --load -t ${IMAGE_NAME} -t ${IMAGE_NAME}:arm64   .
+
+enter:
+	docker run --rm -it --platform="linux/arm64" --entrypoint bash  ${IMAGE_NAME}:final
 
 correct:
 	docker run --rm --privileged tonistiigi/binfmt --install all 
