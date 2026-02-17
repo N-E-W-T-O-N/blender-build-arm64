@@ -82,9 +82,8 @@ make ninja ccache BUILD_CMAKE_ARGS="-DWITH_CYCLES=OFF \
 -DPYTHON_EXECUTABLE=/opt/venv/bin/python \
 -DPYTHON_INCLUDE_DIR=/usr/include/python3.11 \
 -DPYTHON_NUMPY_INCLUDE_DIRS=/opt/venv/lib/python3.11/site-packages/numpy/_core/include \
--DPYTHON_LIBPATH=/opt/venv/lib/python3.11/site-packages \
+-DPYTHON_LIBPATH=/opt/venv/lib \
 -DPYTHON_SITE_PACKAGES=/opt/venv/lib/python3.11/site-packages \
--DPYTHON_SSL_CERT_FILE=/opt/venv/lib/python3.11/site-packages/certifi/cacert.pem \
 -DWITH_INSTALL_PORTABLE=ON \
 -DWITH_SYSTEM_OPENIMAGEIO=ON \
 -DSSE2NEON_INCLUDE_DIR=/usr/local/include/sse2neon \
@@ -92,6 +91,7 @@ make ninja ccache BUILD_CMAKE_ARGS="-DWITH_CYCLES=OFF \
 -DNINJA_MAX_NUM_PARALLEL_COMPILE_HEAVY_JOBS=1 \
 -DNINJA_MAX_NUM_PARALLEL_LINK_JOBS=1 \
 -DTBB_DIR=/usr/local/lib64/cmake/TBB "
+#-DPYTHON_SSL_CERT_FILE=/opt/venv/lib/python3.11/site-packages/certifi/cacert.pem \
 #-DPYTHON_LIBPATH=/usr/local/lib64/python3.11/site-packages \
 #-DPYTHON_SSL_CERT_FILE=/usr/local/lib64/python3.11/site-packages/certifi/cacert.pem \
 #-DNINJA_MAX_NUM_PARALLEL_COMPILE_JOBS=2 \

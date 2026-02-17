@@ -7,8 +7,8 @@
 ################################################################################
 #FROM python:3.11-bookworm AS builder
 FROM newton2022/blender-builder:usd AS usd
-FROM newton2022/ubuntu-python:24_3.11 AS builder
-
+#FROM newton2022/ubuntu-python:24_3.11 AS builder
+FROM ubuntu:24.04 AS builder
 # Set frontend to noninteractive and terminal
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=xterm
@@ -24,12 +24,13 @@ RUN --mount=type=cache,target=/var/cache/apt \
     cmake ninja-build git ccache \
     build-essential git git-lfs ninja-build meson pkg-config subversion \
     autoconf automake bison libtool yasm tcl patchelf wget tar \
-    python3.11-full cython3 \
-    python3.11-dev pybind11-dev alembic libpython3-dev libhpdf-dev libyaml-cpp-dev libsystemd-dev dpkg \
+    python3.12-dev libpython3-dev python3.12 \
+    python3.12-full cython3 pybind11-dev \
+    alembic libhpdf-dev libyaml-cpp-dev libsystemd-dev dpkg \
     \
     # System libraries
     libc6 libstdc++6 libstdc++-11-dev libstdc++-12-dev libc6-dev linux-libc-dev libfftw3-dev opencollada-dev libimath-dev \
-    libusb-1.0-0-dev hydra libboost-all-dev libpugixml-dev clang clang-format libclang-dev llvm-dev robin-map-dev\
+    libusb-1.0-0-dev hydra libboost-all-dev libboost-python-dev libboost-numpy-dev libpugixml-dev clang clang-format libclang-dev llvm-dev robin-map-dev\
    \
    # Compression and crypto
     zlib1g-dev libzstd-dev libssl-dev libssl3 openssl libbrotli-dev libdeflate-dev libclipper2 \
@@ -76,7 +77,6 @@ RUN --mount=type=cache,target=/var/cache/apt \
       libpipewire-0.3-dev \
       libspa-0.2-dev \
       libopenimageio-dev \
-      libboost-all-dev \
       libspa-0.2-modules \
       libpipewire-0.3-dev \
       libxcb-xinerama0-dev \
@@ -103,7 +103,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     # && rm -rf /var/lib/apt/lists/* && apt -qq clean
 
 # Install Python packages with pip cache
-RUN python3.11 -m venv /opt/venv && \
+RUN python3.12 -m venv /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip setuptools wheel \
       numpy charset-normalizer zstandard \
       requests idna certifi alembic mako jinja2
