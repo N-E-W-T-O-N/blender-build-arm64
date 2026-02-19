@@ -4,6 +4,10 @@
 set -e
 echo "-----System Setup-----"
 
+# /opt/venv/bin/pip install --upgrade pip setuptools wheel \
+#       numpy charset-normalizer zstandard cython \
+#       requests idna certifi alembic mako jinja2 packaging
+
 #apt install libboost-python-dev -y
 
 # WorkAround Current version dont provide required stable config 
@@ -25,8 +29,8 @@ echo "-------------------------------------------------------------"
 #echo "1> Added Materialx Successfully"
 export EMBREE_ROOT_DIR="/usr/local"
 export PYTHON_NUMPY_INCLUDE_DIR=$(python3 -c "import numpy; print(numpy.get_include())")
-export SPACENAV_LIBRARY="/usr/lib/aarch64-linux-gnu/libspnav.so"
-export PYTHON_SSL_CERT_FILE="/opt/venv/lib/python3.11/site-packages/certifi/cacert.pem"
+#export SPACENAV_LIBRARY="/usr/lib/aarch64-linux-gnu/libspnav.so"
+export PYTHON_SSL_CERT_FILE="/opt/venv/lib/python3.12/site-packages/certifi/cacert.pem"
 #whereis embree
 #whereis embree4
 echo "Embree installed"
@@ -78,19 +82,21 @@ make ninja ccache BUILD_CMAKE_ARGS="-DWITH_CYCLES=OFF \
 -DWITH_CYCLES_DEVICE_HIP=OFF \
 -DWITH_CYCLES_DEVICE_OPTIX=OFF \
 -DWITH_CYCLES_CUDA_BINARIES=OFF \
--DPYTHON_VERSION=3.11 \
+-DPYTHON_VERSION=3.12 \
+-DWITH_VULKAN_BACKEND=OFF \
 -DPYTHON_EXECUTABLE=/opt/venv/bin/python \
--DPYTHON_INCLUDE_DIR=/usr/include/python3.11 \
--DPYTHON_NUMPY_INCLUDE_DIRS=/opt/venv/lib/python3.11/site-packages/numpy/_core/include \
+-DPYTHON_INCLUDE_DIR=/usr/include/python3.12 \
+-DPYTHON_NUMPY_INCLUDE_DIRS=/opt/venv/lib/python3.12/site-packages/numpy/_core/include \
 -DPYTHON_LIBPATH=/opt/venv/lib \
--DPYTHON_SITE_PACKAGES=/opt/venv/lib/python3.11/site-packages \
+-DPYTHON_SITE_PACKAGES=/opt/venv/lib/python3.12/site-packages \
 -DWITH_INSTALL_PORTABLE=ON \
--DWITH_SYSTEM_OPENIMAGEIO=ON \
 -DSSE2NEON_INCLUDE_DIR=/usr/local/include/sse2neon \
 -DNINJA_MAX_NUM_PARALLEL_COMPILE_JOBS=1 \
 -DNINJA_MAX_NUM_PARALLEL_COMPILE_HEAVY_JOBS=1 \
 -DNINJA_MAX_NUM_PARALLEL_LINK_JOBS=1 \
 -DTBB_DIR=/usr/local/lib64/cmake/TBB "
+
+# -DWITH_SYSTEM_OPENIMAGEIO=ON \
 #-DPYTHON_SSL_CERT_FILE=/opt/venv/lib/python3.11/site-packages/certifi/cacert.pem \
 #-DPYTHON_LIBPATH=/usr/local/lib64/python3.11/site-packages \
 #-DPYTHON_SSL_CERT_FILE=/usr/local/lib64/python3.11/site-packages/certifi/cacert.pem \
@@ -119,13 +125,13 @@ make ninja ccache BUILD_CMAKE_ARGS="-DWITH_CYCLES=OFF \
 
 echo "--- Step 5: Compiling Blender ---"
 #make -j$(nproc)
-ninja -C /blender-git/build_linux -j 4 install
+ninja -C /blender-git/build_linux -j 2 install
 echo "--- Step 6: Creating portable install package ---"
 #make install
 
 echo "--- Build Complete! ---"
 echo "Portable Blender is in 'blender-git/build_arm64/install'." 
-cmake --install .
+#cmake  --install  .
 
 
 echo "-------------------------------------------------------------"

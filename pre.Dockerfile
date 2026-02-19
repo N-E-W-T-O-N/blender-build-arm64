@@ -16,16 +16,17 @@ ENV TERM=xterm
 # Install build tools & dependencies with cache mounts
 RUN --mount=type=cache,target=/var/cache/apt \
     --mount=type=cache,target=/var/lib/apt \
-    apt update && \
-    #apt install -y software-properties-common && apt update && \
-    apt install -y \
-    # Core build tools
-    # gcc-14 g++-14 libtbb-dev \
-    cmake ninja-build git ccache \
-    build-essential git git-lfs ninja-build meson pkg-config subversion \
-    autoconf automake bison libtool yasm tcl patchelf wget tar \
-    python3.12-dev libpython3-dev python3.12 \
-    python3.12-full cython3 pybind11-dev \
+    apt-get update && \
+    apt-get install -y software-properties-common ca-certificates && \
+    #add-apt-repository ppa:deadsnakes/ppa -y && \
+    apt-get update && \
+    apt-get install -y \
+    cmake ninja-build ccache \
+    build-essential git git-lfs meson pkg-config subversion \
+    autoconf automake bison libtool yasm tcl patchelf wget tar curl \
+    #python3.11 python3.11-dev python3.11-venv python3.11-distutils \
+    python3.12 python3.12-dev libpython3-dev pybind11-dev \
+    python3.12-full cython3 \
     alembic libhpdf-dev libyaml-cpp-dev libsystemd-dev dpkg \
     \
     # System libraries
@@ -46,7 +47,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     # OpenGL / GLES / Vulkan stack
     libepoxy-dev libvulkan-dev libshaderc-dev libshaderc1 \
     libgl1-mesa-dev libegl1-mesa-dev libegl-dev mesa-utils libpipewire-0.3-dev \
-     libgles-dev libgles1 libgles2 libgles2-mesa-dev \
+    libgles-dev libgles1 libgles2 libgles2-mesa-dev \
     libglfw3-dev libglew-dev  \
     # libembree3-3 libembree-dev  embree-tools  opensubdiv-tools
     libopenxr-dev libopenxr-loader1 libopenxr-utils \
@@ -105,8 +106,8 @@ RUN --mount=type=cache,target=/var/cache/apt \
 # Install Python packages with pip cache
 RUN python3.12 -m venv /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip setuptools wheel \
-      numpy charset-normalizer zstandard \
-      requests idna certifi alembic mako jinja2
+      numpy charset-normalizer zstandard cython \
+      requests idna certifi alembic mako jinja2 packaging
 
 ENV PATH="/opt/venv/bin:$PATH"
 # Prepare build workspace
@@ -116,8 +117,7 @@ WORKDIR /tmp
 RUN echo "Installing SSE2NEON headers" && \
     git clone --depth=1 https://github.com/DLTcollab/sse2neon.git /tmp/sse2neon && \
     mkdir -p /usr/local/include/sse2neon && \
-    cp /tmp/sse2neon/sse2neon.h /usr/local/include/sse2neon/ && \
-    rm -rf /tmp/sse2neon
+    cp /tmp/sse2neon/sse2neon.h /usr/local/include/sse2neon/ 
 
 # 2. CMake
 # RUN mkdir -p /opt/cmake && \
@@ -148,7 +148,7 @@ RUN echo "Building TBB" && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
           -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF -DTBB_TEST=OFF -DTBB_STRICT=OFF \
           -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" .. && \
-    cmake --build . && cmake --install . && rm -rf /tmp/tbb
+    cmake --build . && cmake --install .  
 
 # 6 Vulkan-Header
 # RUN echo "Add Vulkan Header" && \
@@ -177,7 +177,7 @@ RUN echo "Build OpenColorIO" && \
       -DOCIO_USE_HEADLESS=OFF \
       -DOCIO_WARNING_AS_ERROR=OFF \
       -DOCIO_BUILD_DOCS=OFF && \
-    cmake --build . && cmake --install . && echo "Done Installing OpenColorIO." && rm -rf /tmp/ocio
+    cmake --build . && cmake --install . && echo "Done Installing OpenColorIO." 
 
 # 8 OIIO
 RUN echo "Build OpenImageIO" && \
@@ -208,7 +208,7 @@ RUN echo "Build OpenImageIO" && \
       -DUSE_PTEX=OFF \
       -DUSE_LIBRAW=OFF \
       -DUSE_JXL=OFF && \
-    cmake --build . && cmake --install . && echo "Done Installing OpenImageIO." && rm -rf /tmp/oiio
+    cmake --build . && cmake --install . && echo "Done Installing OpenImageIO."  
 
 # 9 OIDN
 RUN echo "Build Image Denoiser Oidn" && \
@@ -226,7 +226,7 @@ RUN echo "Build Image Denoiser Oidn" && \
       -DOIDN_INSTALL_DEPENDENCIES=ON \
       -DCMAKE_INSTALL_PREFIX=/usr/local \
       -DISPC_EXECUTABLE=/opt/ispc/bin/ispc && \
-    cmake --build . && cmake --install . && echo "Done installing Oidn" && rm -rf /tmp/oidn
+    cmake --build . && cmake --install . && echo "Done installing Oidn"  
     
 ################################################################################
 # Stage 2: Mid-Builder
@@ -248,7 +248,7 @@ RUN echo "Cloning MaterialX" && \
       -DMATERIALX_BUILD_VIEWER=OFF \
       -DMATERIALX_BUILD_GRAPH_EDITOR=OFF \      
       -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" && \
-    cmake --build . && cmake --install . && echo "Done Installing MaterialX" && rm -rf /tmp/materialx
+    cmake --build . && cmake --install . && echo "Done Installing MaterialX" 
 
 # 11 OpenPGL
 RUN echo "Building OpenPGL" && \
@@ -260,7 +260,7 @@ RUN echo "Building OpenPGL" && \
       -DOPENPGL_BUILD_TOOLS=OFF \
       -DOPENPGL_EF_IMAGE_SPACE_GUIDING_BUFFER=OFF \
       -DOPENPGL_TBB_ROOT=/usr/local  && \
-    cmake --build . && cmake --install . && echo "OpenPGL build complete" && rm -rf /tmp/openpgl
+    cmake --build . && cmake --install . && echo "OpenPGL build complete" 
 
 # 12 OpenSubdiv
 RUN echo "Building OpenSubdiv" && \
@@ -274,7 +274,7 @@ RUN echo "Building OpenSubdiv" && \
       -DNO_DOC=1 -DNO_EXAMPLES=1 -DNO_REGRESSION=1 -DNO_PTEX=1 -DNO_OMP=1 -DNO_CUDA=1 \
       -DOSD_PATCH_SHADER_SOURCE_GLSL=1 -DOSD_PATCH_SHADER_SOURCE_HLSL=1 \
     && \
-    cmake --build . && cmake --install . && echo "Done Installing OpenSubdiv" && rm -rf /tmp/OpenSubdiv
+    cmake --build . && cmake --install . && echo "Done Installing OpenSubdiv"  
 
 # 13 Manifold
 RUN echo "Building Manifold v3.3.2" && \
@@ -301,7 +301,7 @@ RUN echo "Building Manifold v3.3.2" && \
       -DClipper2_DIR=/usr/lib/aarch64-linux-gnu/cmake/Clipper2 \
       -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" \
        && \
-    cmake --build . && cmake --install . && echo "Done Installing Manifold" && rm -rf /tmp/manifold
+    cmake --build . && cmake --install . && echo "Done Installing Manifold" 
 
 # 14.A Embree4
 # RUN echo "Building Embree4" && \
@@ -329,7 +329,7 @@ RUN echo "Building Alembic" && \
       -DALEMBIC_DEBUG_WARNINGS_AS_ERRORS=OFF \
       -DCMAKE_CXX_FLAGS="-O2 -fno-lto" \
       -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF && \
-    cmake --build . && cmake --install . && echo "Done Installing Alembic" && rm -rf /tmp/alembic
+    cmake --build . && cmake --install . && echo "Done Installing Alembic" 
 
 # 16 PipeWire
 #RUN echo "Building PipeWire v1.4.8" && \
