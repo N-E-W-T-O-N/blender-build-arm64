@@ -17,9 +17,25 @@ build-image:
     docker buildx build --platform linux/arm64 --progress=plain --load -t ${IMAGE_NAME} -t ${IMAGE_NAME}:arm64   .
 
 enter:
-	docker run --rm -it --platform="linux/arm64" --entrypoint bash  ${IMAGE_NAME}:final
+	docker run --rm -it --platform="linux/arm64" --pull always --entrypoint bash -w /  ${IMAGE_NAME}:final
+
+display:
+	docker run --rm -it \
+		--platform linux/arm64 \
+		--entrypoint bash \
+		-w /blender-git/build_linux/bin \
+		-v ${PWD}/blender-git:/blender-git \
+		-e DISPLAY=:0 \
+		-e WAYLAND_DISPLAY=wayland-0 \
+		-e XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir \
+		-e PULSE_SERVER=unix:/mnt/wslg/PulseServer \
+		-e LD_LIBRARY_PATH=/usr/local/lib \
+		-v /mnt/wslg:/mnt/wslg \
+		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		--device /dev/dxg \
+		${IMAGE_NAME}:final
 rdp:
-	docker run -it -p 33890:3389  --platform="linux/arm64" -v ${PWD}/blender-git/:/blender-git/:rw danchitnis/xrdp:ubuntu-xfce-next ${USER} ${PASSWORD} yes ; echo " ${USER} ${PASSWORD}  yes "
+	docker run -it --rm --name rdp -p 33890:3389 -e SSHD_ENABLE=true -p 2222:22  --platform="linux/arm64" -v ${PWD}/blender-git/:/blender-git -e USER=${USER} -e PASSWORD=${PASSWORD} heywoodlh/rdp-ubuntu  ; echo " ${USER} ${PASSWORD}  yes "
 
 correct:
 	docker run --rm --privileged tonistiigi/binfmt --install all 

@@ -28,7 +28,7 @@ echo "-------------------------------------------------------------"
 
 #echo "1> Added Materialx Successfully"
 export EMBREE_ROOT_DIR="/usr/local"
-export PYTHON_NUMPY_INCLUDE_DIR=$(python3 -c "import numpy; print(numpy.get_include())")
+#export PYTHON_NUMPY_INCLUDE_DIR=$(python3 -c "import numpy; print(numpy.get_include())")
 #export SPACENAV_LIBRARY="/usr/lib/aarch64-linux-gnu/libspnav.so"
 export PYTHON_SSL_CERT_FILE="/opt/venv/lib/python3.12/site-packages/certifi/cacert.pem"
 #whereis embree
@@ -77,6 +77,7 @@ echo "--- Step 4: Configuring build ---"
 #F -DSDL2_INCLUDE_DIRS=/usr/include/SDL2/ -DWITH_VULKAN_BACKEND=OFF
 
 
+## Comment this part ones done to save time
 make ninja ccache BUILD_CMAKE_ARGS="-DWITH_CYCLES=OFF \
 -DWITH_CYCLES_DEVICE_CUDA=OFF \
 -DWITH_CYCLES_DEVICE_HIP=OFF \
@@ -125,7 +126,7 @@ make ninja ccache BUILD_CMAKE_ARGS="-DWITH_CYCLES=OFF \
 
 echo "--- Step 5: Compiling Blender ---"
 #make -j$(nproc)
-ninja -C /blender-git/build_linux -j 2 install
+ninja -C /blender-git/build_linux -j 1 install
 echo "--- Step 6: Creating portable install package ---"
 #make install
 

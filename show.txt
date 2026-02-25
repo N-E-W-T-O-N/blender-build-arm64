@@ -1,0 +1,313 @@
+ export LD_LIBRARY_PATH=/blender-git/build_linux/lib:/usr/local/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+sudo apt install -y libc6 libstdc++6
+sudo apt install -y     libc6     libstdc++6     libgcc-s1     libgl1     libegl1     libx11-6     libxext6     libxrender1     libxi6     libxrandr2     libxfixes3     libxcursor1     libxinerama1     libwayland-client0     libwayland-egl1     libdbus-1-3     libpulse0          libfreetype6     libpng16-16     libjpeg-turbo8     zlib1g     ca-certificates
+ldd ./blender | grep osd
+
+./blender
+ ArchWarn: ARCH_CACHE_LINE_SIZE != Arch_ObtainCacheLineSize()
+ Function: Arch_ValidateAssumptions
+     File: /OpenUSD/pxr/base/arch/assumptions.cpp
+     Line: 140
+GHOST/Wayland: error: XDG_RUNTIME_DIR is invalid or not set in the environment.
+./blender() [0xd16f8c]
+./blender() [0xd17184]
+/lib/aarch64-linux-gnu/libwayland-client.so.0(+0x56e4) [0x40001d0e56e4]
+/lib/aarch64-linux-gnu/libwayland-client.so.0(wl_display_connect+0x310) [0x40001d0ea3f0]
+./blender() [0x12c4734]
+./blender() [0x12a9870]
+./blender() [0x12a70e4]
+./blender() [0xff692c]
+./blender() [0xfd3f98]
+./blender() [0x49625c]
+/lib/aarch64-linux-gnu/libc.so.6(+0x284c4) [0x4000105c84c4]
+/lib/aarch64-linux-gnu/libc.so.6(__libc_start_main+0x98) [0x4000105c8598]
+./blender() [0x4ec6b0]
+00:01.502  ghost.system     | Failed to initialize display for back-end(s): ['WAYLAND', 'X11']
+                            |   'WAYLAND': unable to connect to display!
+                            |   'X11': unable to open a display!
+                            |
+00:01.503  ghost.system     | ERROR Unable to initialize GHOST, exiting!
+Error: Not freed memory blocks: 4549, total unfreed memory 1.272057 MB
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+docker run --rm -it \
+  --platform linux/arm64 \
+  --entrypoint bash \
+  -w /blender-git/build_linux/bin \
+  -v ${PWD}/blender-git:/blender-git \
+  -e DISPLAY=$DISPLAY \
+  -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
+  -e XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir \
+  -e PULSE_SERVER=$PULSE_SERVER \
+  -v /mnt/wslg:/mnt/wslg \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  ${IMAGE_NAME}:final
+./bin/blender
+ ArchWarn: ARCH_CACHE_LINE_SIZE != Arch_ObtainCacheLineSize()
+ Function: Arch_ValidateAssumptions
+     File: /OpenUSD/pxr/base/arch/assumptions.cpp
+     Line: 140
+GHOST/Wayland: error: XDG_RUNTIME_DIR is invalid or not set in the environment.
+./bin/blender() [0xd16f8c]
+./bin/blender() [0xd17184]
+/lib/aarch64-linux-gnu/libwayland-client.so.0(+0x56e4) [0x40001d6156e4]
+/lib/aarch64-linux-gnu/libwayland-client.so.0(wl_display_connect+0x310) [0x40001d61a3f0]
+./bin/blender() [0x12c4734]
+./bin/blender() [0x12a9870]
+./bin/blender() [0x12a70e4]
+./bin/blender() [0xff692c]
+./bin/blender() [0xfd3f98]
+./bin/blender() [0x49625c]
+/lib/aarch64-linux-gnu/libc.so.6(+0x284c4) [0x4000103384c4]
+/lib/aarch64-linux-gnu/libc.so.6(__libc_start_main+0x98) [0x400010338598]
+./bin/blender() [0x4ec6b0]
+Python path configuration:
+  PYTHONHOME = '/blender-git/build_linux/bin/5.0/python'
+  PYTHONPATH = (not set)
+  program name = '/blender-git/build_linux/bin/blender'
+  isolated = 1
+  environment = 0
+  user site = 0
+  safe_path = 1
+  import site = 1
+  is in build tree = 0
+  stdlib dir = '/blender-git/build_linux/bin/5.0/python/lib/python3.12'
+  sys._base_executable = '/opt/venv/bin/python'
+  sys.base_prefix = '/blender-git/build_linux/bin/5.0/python'
+  sys.base_exec_prefix = '/blender-git/build_linux/bin/5.0/python'
+  sys.platlibdir = 'lib'
+  sys.executable = '/opt/venv/bin/python'
+  sys.prefix = '/blender-git/build_linux/bin/5.0/python'
+  sys.exec_prefix = '/blender-git/build_linux/bin/5.0/python'
+  sys.path = [
+    '/blender-git/build_linux/bin/5.0/python/lib/python312.zip',
+    '/blender-git/build_linux/bin/5.0/python/lib/python3.12',
+    '/blender-git/build_linux/bin/5.0/python/lib/python3.12/lib-dynload',
+  ]
+Internal error initializing Python!
+Fatal Python error: init_fs_encoding: failed to get the Python codec of the filesystem encoding
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00004000218a6740 (most recent call first):
+  <no Python frame>
+Error: Not freed memory blocks: 24272, total unfreed memory 6.634399 MB
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+Freeing memory after the leak detector has run. This can happen when using static variables in C++ that are defined outside of functions. To fix this error, use the 'construct on first use' idiom.
+You actually have **two separate problems** here:
+
+1. **Wayland/X11 runtime not available inside the container**
+   → `XDG_RUNTIME_DIR is invalid or not set`
+2. **Blender’s bundled Python cannot find stdlib**
+   → `ModuleNotFoundError: No module named 'encodings'`
+
+Running Blender inside **WSL + ARM64 container** requires fixing both the GUI plumbing and Python environment.
+
+---
+
+# ✅ Root causes
+
+## 1️⃣ Wayland / display error
+
+Inside containers, Blender tries Wayland first. In WSL there is usually:
+
+* WSLg Wayland socket at `/mnt/wslg/runtime-dir`
+* Or X11 at `/tmp/.X11-unix`
+
+Your container doesn’t see them → crash during GHOST init.
+
+---
+
+## 2️⃣ Python broken inside Blender build
+
+This is the critical failure:
+
+```
+PYTHONHOME = '/blender-git/build_linux/bin/5.0/python'
+sys.executable = '/opt/venv/bin/python'
+No module named encodings
+```
+
+That means:
+
+👉 Your container’s virtualenv is interfering
+👉 Blender is picking wrong Python executable
+👉 Or Python stdlib wasn’t installed during build
+
+When `encodings` is missing, Python can’t even start — this is almost always:
+
+* Wrong `PYTHONHOME`
+* Wrong `PYTHONPATH`
+* Incomplete Blender install
+* Mixing venv with Blender runtime
+
+---
+
+# 🧠 Most likely scenario
+
+You built Blender in container while a venv was active (`/opt/venv`), so runtime paths are polluted.
+
+Blender must run with **its own Python only**.
+
+---
+
+# 🔧 Fix — do these in order
+
+## Step 1 — unset Python pollution
+
+Before running Blender:
+
+```bash
+unset PYTHONHOME
+unset PYTHONPATH
+unset VIRTUAL_ENV
+export PYTHONNOUSERSITE=1
+```
+
+Then run:
+
+```bash
+./bin/blender
+```
+
+---
+
+## Step 2 — force X11 instead of Wayland (simplest in containers)
+
+```bash
+export GDK_BACKEND=x11
+export SDL_VIDEODRIVER=x11
+export WAYLAND_DISPLAY=
+```
+
+If using WSLg:
+
+```bash
+export DISPLAY=:0
+```
+
+---
+
+## Step 3 — pass display sockets into container
+
+If using Docker:
+
+```bash
+-v /tmp/.X11-unix:/tmp/.X11-unix
+-e DISPLAY
+```
+
+For WSLg (better):
+
+```bash
+-v /mnt/wslg:/mnt/wslg
+-e WAYLAND_DISPLAY
+-e XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir
+```
+
+---
+
+## Step 4 — verify Blender Python exists
+
+Check:
+
+```bash
+ls /blender-git/build_linux/bin/5.0/python/lib/python3.12/encodings
+```
+
+If missing → build incomplete.
+
+---
+
+## Step 5 — rebuild correctly if needed
+
+Inside container:
+
+```bash
+make clean
+make update
+make -j$(nproc)
+make install
+```
+
+Important: build with no venv active.
+
+---
+
+# 🧪 Quick diagnostic command
+
+Run:
+
+```bash
+env | grep -i python
+```
+
+If you see:
+
+```
+PYTHONHOME
+PYTHONPATH
+VIRTUAL_ENV
+```
+
+→ that’s the culprit.
+
+---
+
+# 🛠 Recommended run wrapper
+
+Create `run_blender.sh`:
+
+```bash
+#!/bin/bash
+
+unset PYTHONHOME
+unset PYTHONPATH
+unset VIRTUAL_ENV
+export PYTHONNOUSERSITE=1
+
+export DISPLAY=:0
+export GDK_BACKEND=x11
+export WAYLAND_DISPLAY=
+
+export LD_LIBRARY_PATH=/blender-git/build_linux/lib:/usr/local/lib:$LD_LIBRARY_PATH
+
+./bin/blender
+```
+
+---
+
+# ⚠️ ARM64 note (important)
+
+Blender on ARM inside container + WSL is still somewhat experimental:
+
+* OpenUSD warnings are normal
+* GPU acceleration likely unavailable
+* Software rendering expected
+
+---
+
+# 🧩 If you want a robust setup
+
+Tell me:
+
+✅ Docker or Podman?
+✅ Running under WSL2 or native Linux ARM?
+✅ Need GUI or headless rendering?
+✅ Building Blender from source or using prebuilt?
+✅ Using WSLg or external X server (VcXsrv/X410)?
+
+I can give you a clean working recipe — including a minimal Dockerfile — that avoids these issues entirely.
