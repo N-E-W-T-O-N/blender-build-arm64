@@ -1,0 +1,95 @@
+Extra Packages for Enterprise Linux 9 openh264  2.0 kB/s | 2.5 kB     00:01    
+Rocky Linux 9 - BaseOS                          1.7 MB/s | 2.6 MB     00:01    
+Rocky Linux 9 - AppStream                       7.8 MB/s | 8.2 MB     00:01    
+Rocky Linux 9 - CRB                             1.6 MB/s | 2.1 MB     00:01    
+Rocky Linux 9 - Extras                           17 kB/s |  18 kB     00:01    
+Last metadata expiration check: 0:00:01 ago on Fri Oct 10 19:37:04 2025.
+Available Environment Groups:
+   Server with GUI
+   Server
+   Minimal Install
+   KDE Plasma Workspaces
+   Custom Operating System
+Available Groups:
+   Critical Path (KDE)
+   Fedora Packager
+   firefox
+   KDE Applications
+   KDE
+   KDE Educational applications
+   KDE Multimedia support
+   KDE Office
+   KDE Software Development
+   KDE Frameworks 5 Software Development
+   office-suite
+   VideoLAN Client
+   Xfce
+   Conflicts BaseOS
+   Dial-up Networking Support
+   Hardware Support
+   Large Systems Performance
+   Legacy UNIX Compatibility
+   Mainframe Access
+   Python Web
+   Server product core
+   Additional Development
+   Anaconda tools
+   Backup Client
+   Base
+   base-x
+   Conflicts AppStream
+   Console Internet Tools
+   Container Management
+   Core
+   Debugging Tools
+   Desktop Debugging and Performance Tools
+   Development Tools
+   DNS Name Server
+   .NET Development
+   Emacs
+   File and Storage Server
+   Fonts
+   FTP Server
+   GNOME
+   Graphical Administration Tools
+   Graphics Creation Tools
+   Guest Agents
+   Guest Desktop Agents
+   Hardware Monitoring Utilities
+   Headless Management
+   Infiniband Support
+   Input Methods
+   Internet Applications
+   Internet Browser
+   Java Development
+   Java Platform
+   Legacy X Window System Compatibility
+   Mail Server
+   Multimedia
+   Network File System Client
+   Network Servers
+   Networking Tools
+   Common NetworkManager submodules
+   Image based rpm-ostree support
+   Performance Tools
+   Platform Development
+   KVM platform specific packages
+   Hyper-v platform specific packages
+   Printing Client
+   Remote Desktop Clients
+   Remote Management for Linux
+   RPM Development Tools
+   Scientific Support
+   Security Tools
+   Smart Card Support
+   Windows File Server
+   Standard
+   System Tools
+   TeX formatting system
+   Virtualization Client
+   Virtualization Hypervisor
+   Virtualization Platform
+   Virtualization Tools
+   Basic Web Server
+   Workstation product core
+   CRB
