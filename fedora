@@ -1,0 +1,121 @@
+# syntax=docker/dockerfile:1
+
+# Blender Builder - ARM64 Optimized with Cache Mounts
+# Use an official Fedora image as the base.
+# The --platform flag ensures the correct architecture is pulled.
+# MaterialX with cache mount
+
+FROM newton2022/blender-builder:fedora AS builder
+
+
+
+RUN echo "Add ISPC" && mkdir -p /opt/ispc && \
+    wget -q https://github.com/ispc/ispc/releases/download/v1.28.2/ispc-v1.28.2-linux.aarch64.tar.gz \
+            -O ispc.tar.gz && \
+    tar -xzf ispc.tar.gz -C /opt/ispc --strip-components=1 && \
+    rm ispc.tar.gz
+
+# TBB
+RUN  --mount=type=bind,target=/tmp/tbb,source=tbb,rw \    
+    cd /tmp/tbb/build &&  cmake --build . && cmake --install .   
+
+# Oidn
+RUN  --mount=type=bind,target=/tmp/oidn,source=oidn,rw \    
+    cd /tmp/oidn/build && cmake --build . && cmake --install .  
+
+
+
+RUN echo "Cloning MaterialX" && \
+      git clone https://github.com/AcademySoftwareFoundation/MaterialX.git -b v1.39.4 --depth=1 /tmp/materialx && \
+      mkdir -p /tmp/materialx/build && cd /tmp/materialx/build && \
+      cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja \
+            -DCMAKE_INSTALL_PREFIX=/usr/local \
+            -DMATERIALX_BUILD_GRAPH_EDITOR=OFF \
+            -DMATERIALX_BUILD_PYTHON=ON \
+            -DMATERIALX_BUILD_TESTS=OFF \
+            -DMATERIALX_BUILD_VIEWER=OFF \
+            -DMATERIALX_BUILD_RENDER=ON \
+            -DMATERIALX_INSTALL_PYTHON=OFF \
+            -DMATERIALX_BUILD_SHARED_LIBS=ON \
+            -DPYBIND11_FINDPYTHON=ON \
+            -DMATERIALX_PYTHON_EXECUTABLE=/usr/sbin/python3.11 \
+            -DMATERIALX_INSTALL_PYTHON=/usr/sbin/python3.11 \
+            -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" \
+      && cmake --build . && \
+      cmake --install . && rm /tmp/materialx && \
+      echo "Done Installing MaterialX"    
+
+    RUN echo "Building Manifold v3.2.1" && \
+    git clone https://github.com/elalish/manifold -b v3.2.1 --single-branch /tmp/build_linux/manifold && \
+    cd /tmp/build_linux/manifold && mkdir -p build && cd build && \
+    cmake .. \
+      -G Ninja \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=/usr/local \
+      -DBUILD_SHARED_LIBS=ON \
+      -DBUILD_TESTING=OFF \
+      -DMANIFOLD_TEST=OFF \
+      -DMANIFOLD_DEBUG=OFF \
+      -DMANIFOLD_STRICT=ON \
+      -DMANIFOLD_PAR=ON \
+      -DMANIFOLD_CROSS_SECTION=ON \
+      -DMANIFOLD_CBIND=ON \
+      -DMANIFOLD_PYBIND=ON \
+      -DMANIFOLD_EXPORT=OFF \
+      -DMANIFOLD_DOWNLOADS=ON \
+      -DMANIFOLD_USE_BUILTIN_TBB=OFF \
+      -DMANIFOLD_USE_BUILTIN_CLIPPER2=ON \
+      -DMANIFOLD_USE_BUILTIN_NANOBIND=OFF \
+      -DClipper2_DIR=/usr/lib/aarch64-linux-gnu/cmake/Clipper2 \
+      #  -DFETCHCONTENT_SOURCE_DIR_TBB=/usr/local \
+      #   -DTBB_ROOT=/usr/local \
+      #  -DTBB_DIR=/usr/local/lib/cmake/TBB \
+      -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" \
+      -DFETCHCONTENT_DOWNLOADS=OFF \
+      -DFETCHCONTENT_QUIET=ON && \
+      && cmake --build . && \
+      cmake --install . && rm /tmp/manifold 
+ 
+      RUN echo "Cloning MaterialX" && \
+      git clone https://github.com/AcademySoftwareFoundation/MaterialX.git -b v1.39.4 --depth=1 /tmp/materialx && \
+      mkdir -p /tmp/materialx/build && cd /tmp/materialx/build && \
+      cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja \
+            -DCMAKE_INSTALL_PREFIX=/usr/local \
+            -DMATERIALX_BUILD_GRAPH_EDITOR=OFF \
+            -DMATERIALX_BUILD_PYTHON=ON \
+            -DMATERIALX_BUILD_TESTS=OFF \
+            -DMATERIALX_BUILD_VIEWER=OFF \
+            -DMATERIALX_BUILD_RENDER=ON \
+            -DMATERIALX_INSTALL_PYTHON=OFF \
+            -DMATERIALX_BUILD_SHARED_LIBS=ON \
+            -DPYBIND11_FINDPYTHON=ON \
+            -DMATERIALX_PYTHON_EXECUTABLE=/usr/sbin/python3.11 \
+            -DMATERIALX_INSTALL_PYTHON=/usr/sbin/python3.11 \
+            -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" \
+      && cmake --build . && \
+      cmake --install . && rm /tmp/materialx && \
+      echo "Done Installing MaterialX"
+
+    RUN echo "Cloning MaterialX" && \
+    git clone https://github.com/AcademySoftwareFoundation/MaterialX.git -b v1.39.4 --depth=1 /tmp/build_linux/materialx && \
+    mkdir -p /tmp/build_linux/materialx/build && cd /tmp/build_linux/materialx/build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr/local \
+          -DMATERIALX_BUILD_GRAPH_EDITOR=OFF \
+          -DMATERIALX_BUILD_PYTHON=ON \
+          -DMATERIALX_BUILD_TESTS=OFF \
+          -DMATERIALX_BUILD_VIEWER=OFF \
+          -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" \
+    && cmake --build . && \
+    cmake --install . && rm /tmp/materialx \
+    echo "Done Installing MaterialX"
+# Switch to the non-root user
+#USER builder
+WORKDIR /blender-git
+
+# Copy the compile script into the container and make it executable
+COPY --chown=builder:builder compile.sh /compile.sh
+RUN chmod +x /compile.sh
+
+# Set the entrypoint to our compile script
+ENTRYPOINT ["/compile.sh"]

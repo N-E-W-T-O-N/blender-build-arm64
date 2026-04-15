@@ -1,0 +1,86 @@
+https://github.com/alembic/alembic/tree/1.8.8
+https://github.com/RenderKit/openpgl/releases/tag/v0.7.1
+ 
+-- Could NOT find Spacenav (missing: SPACENAV_LIBRARY SPACENAV_INCLUDE_DIR)   libspnav-dev
+-- SpaceNav not found, disabling WITH_INPUT_NDOF
+-- Could NOT find OSL (missing: OSL_LIBRARIES OSL_INCLUDE_DIRS OSL_COMPILER) (Required is at least version "1.13.4")
+-- OSL not found, disabling WITH_CYCLES_OSL
+-- Could NOT find NanoVDB (missing: NANOVDB_INCLUDE_DIR) 
+-- NanoVDB not found, disabling WITH_NANOVDB
+-- Could NOT find sse2neon (missing: SSE2NEON_INCLUDE_DIR) 
+-- Could NOT find Alembic (missing: ALEMBIC_INCLUDE_DIR) 
+ 
+-- USD not found, disabling WITH_USD /tag/v25.08
+-- Hydra not found, disabling WITH_HYDRA
+
+
+  cache-from = [
+    "type=registry,ref=${REGISTRY}/blender-builder:cache"
+  ]
+  cache-to = [
+    "type=registry,ref=${REGISTRY}/blender-builder:cache,mode=max"
+  ]
+
+  Policy CMP0167 is not set: The FindBoost module is removed.  Run "cmake
+  --help-policy CMP0167" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+Call Stack (most recent call first):
+  CMakeLists.txt:1576 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+
+https://github.com/RenderKit/oidn
+https://graphics.pixar.com/opensubdiv/docs/cmake_build.html
+-- Could NOT find OpenImageDenoise (missing: OPENIMAGEDENOISE_LIBRARY OPENIMAGEDENOISE_INCLUDE_DIR) 
+-- OpenImageDenoise not found, disabling WITH_OPENIMAGEDENOISE
+-- Could NOT find OpenSubdiv (missing: _opensubdiv_LIBRARIES OPENSUBDIV_INCLUDE_DIR) 
+-- OpenSubdiv not found, disabling WITH_OPENSUBDIV
+
+
+
+CMake Warning at build_files/cmake/platform/platform_unix.cmake:599 (find_package):
+  By not providing "Findmanifold.cmake" in CMAKE_MODULE_PATH this project has
+  asked CMake to find a package configuration file provided by "manifold",
+  but CMake did not find one.
+
+  Could not find a package configuration file provided by "manifold" with any
+  of the following names:
+
+    manifoldConfig.cmake
+    manifold-config.cmake
+
+  Add the installation prefix of "manifold" to CMAKE_PREFIX_PATH or set
+  "manifold_DIR" to a directory containing one of the above files.  If
+  "manifold" provides a separate development package or SDK, be sure it has
+  been installed.
+Call Stack (most recent call first):
+  CMakeLists.txt:1576 (include)
+
+
+-- MANIFOLD not found, disabling WITH_MANIFOLD
+CMake Warning at build_files/cmake/platform/platform_unix.cmake:112 (find_package):
+  By not providing "Findopenpgl.cmake" in CMAKE_MODULE_PATH this project has
+  asked CMake to find a package configuration file provided by "openpgl", but
+  CMake did not find one.
+
+  Could not find a package configuration file provided by "openpgl" with any
+  of the following names:
+
+    openpglConfig.cmake
+    openpgl-config.cmake
+
+  Add the installation prefix of "openpgl" to CMAKE_PREFIX_PATH or set
+  "openpgl_DIR" to a directory containing one of the above files.  If
+  "openpgl" provides a separate development package or SDK, be sure it has
+  been installed.
+Call Stack (most recent call first):
+  build_files/cmake/platform/platform_unix.cmake:608 (find_package_wrapper)
+  CMakeLists.txt:1576 (include)
+
+
+-- OpenPGL not found, disabling WITH_CYCLES_PATH_GUIDING
+
+
+
+

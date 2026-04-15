@@ -1,0 +1,348 @@
+# syntax=docker/dockerfile:1.4
+
+################################################################################
+# Stage "builder" – installs build dependencies and builds core libraries
+################################################################################
+#FROM python:3.11-bookworm AS builder
+#FROM newton2022/ubuntu-python:24_3.11 AS builder
+FROM newton2022/blender-builder:24-prebuilder AS builder
+# ENV DEBIAN_FRONTEND=noninteractive
+# ENV TERM=xterm
+
+# # Install build tools & dependencies with cache mounts
+# RUN --mount=type=cache,target=/var/cache/apt \
+#     --mount=type=cache,target=/var/lib/apt \
+#     apt update && \
+#     #apt install -y software-properties-common && apt update && \
+#     apt install -y \
+#     # Core build tools
+#     # gcc-14 g++-14 \
+#     build-essential git git-lfs ninja-build meson pkg-config subversion cmake \
+#     autoconf automake bison libtool yasm tcl patchelf wget tar \
+#     python3.11-dev pybind11-dev alembic libpython3-dev libhpdf-dev libyaml-cpp-dev libsystemd-dev dpkg \
+#     \
+#     # System libraries
+#     libc6 libstdc++6 libstdc++-11-dev libstdc++-12-dev libc6-dev linux-libc-dev libfftw3-dev opencollada-dev libimath-dev \
+#     libusb-1.0-0-dev hydra libboost-all-dev libpugixml-dev clang clang-format libclang-dev llvm-dev robin-map-dev\
+#    \
+#    # Compression and crypto
+#     zlib1g-dev libzstd-dev libssl-dev libssl3 openssl libbrotli-dev libdeflate-dev libclipper2 \
+#     # Memory & testing
+#     libjemalloc-dev valgrind libpystring-dev \
+#     \
+#     # Wayland / X11 / Display
+#     libwayland-dev libosd-dev libx11-dev libxt-dev libxcursor-dev libxi-dev libxrandr-dev \
+#     libxkbcommon-dev libxxf86vm-dev libxfixes-dev libxrender-dev xorg \
+#     libxinerama-dev libfontconfig1-dev libdbus-1-dev xauth libuhd-dev\
+#     libwayland-dev wayland-protocols \
+#     \
+#     # OpenGL / GLES / Vulkan stack
+#     libepoxy-dev libvulkan-dev libshaderc-dev libshaderc1 \
+#     libgl1-mesa-dev libegl1-mesa-dev libegl-dev mesa-utils libpipewire-0.3-dev \
+#     libgles-dev libgles1 libgles2 libgles2-mesa-dev \
+#     libglfw3-dev libglew-dev opensubdiv-tools libtbb-dev \
+#     # libembree3-3 libembree-dev  embree-tools 
+#     libopenxr-dev libopenxr-loader1 libopenxr-utils \
+#     \
+#     # Image I/O
+#     # libjpeg62-turbo-dev
+#     libopencolorio-dev libjpeg-dev libjpeg-turbo8-dev libpng-dev libtiff-dev libopenexr-dev libfreetype6-dev  \
+#     libopengl0 libopengl-dev libpotrace-dev libopenjp2-7-dev libwebp-dev\
+#     libopenimageio-dev openimageio-tools \
+#     # Audio / Multimedia
+#     ffmpeg libswresample-dev libavdevice-dev libffado-dev libavformat-dev libavfilter-dev libopenal-dev libswscale-dev libsdl2-dev \
+#     libsndfile1-dev libjack-jackd2-dev libgstreamer1.0-0 libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+#     gstreamer1.0-x gstreamer1.0-pulseaudio gstreamer1.0-alsa libspnav-dev libopenvdb-dev libopenvdb-ax-dev \
+#     libpulse-dev gstreamer1.0-adapter-pulseeffects libavahi-client-dev libcanberra-dev libwebrtc-audio-processing-dev \
+#     liblilv-dev libebur128-dev libmysofa-dev libcap-dev  
+    # Clean up
+    # rm -rf /var/lib/apt/lists/* && apt -qq clean
+
+FROM builder AS prebuilder
+# # Install Python packages with pip cache
+# #    pip install --upgrade pip && \
+# # RUN python3.11 -m ensurepip --upgrade && \
+# #     python3.11 -m pip install --upgrade pip setuptools wheel numpy charset-normalizer zstandard requests idna certifi alembic mako jinja2 && \
+# #     apt clean && rm -rf /var/lib/apt/lists/*
+# RUN python3.11 -m venv /opt/venv && \
+#     /opt/venv/bin/pip install --upgrade pip setuptools wheel \
+#       numpy charset-normalizer zstandard \
+#       requests idna certifi alembic mako jinja2
+
+# ENV PATH="/opt/venv/bin:$PATH"
+
+# # Prepare build workspace
+# WORKDIR /tmp
+
+# # 1. SSE2NEON headers
+# RUN git clone --depth=1 https://github.com/DLTcollab/sse2neon.git sse2neon && \
+#     mkdir -p /usr/local/include/sse2neon && \
+#     cp sse2neon/sse2neon.h /usr/local/include/sse2neon/ && \
+#     rm -rf sse2neon
+
+# # 2. CMake
+# RUN mkdir -p /opt/cmake && \
+#     wget -q https://github.com/Kitware/CMake/releases/download/v4.1.2/cmake-4.1.2-linux-aarch64.sh \
+#         -O cmake-install.sh && \
+#     chmod +x cmake-install.sh && \
+#     ./cmake-install.sh --skip-license --prefix=/opt/cmake && \
+#     ln -s /opt/cmake/bin/* /usr/local/bin/ && \
+#     rm cmake-install.sh
+
+# 3. Wayland-Protocols
+# RUN echo "Building Wayland-Protocols" && \
+#     git clone -b 1.44 https://gitlab.freedesktop.org/wayland/wayland-protocols wayland && \
+#     mkdir -p wayland/build && cd wayland/build && \
+#     meson setup build .. --buildtype=release -Dprefix=/usr/local -Dtests=false && \
+#     meson compile -C build && meson install -C build && rm -rf wayland
+
+# 4. ISPC
+# RUN echo "Add ISPC" && mkdir -p /opt/ispc && \
+#     wget -q https://github.com/ispc/ispc/releases/download/v1.29.1/ispc-v1.29.1-linux.aarch64.tar.gz \
+#         -O ispc.tar.gz && \
+#     tar -xzf ispc.tar.gz -C /opt/ispc --strip-components=1 && \
+#     rm ispc.tar.gz
+
+# 5. TBB
+# RUN echo "Building TBB" && git clone --branch v2022.2.0 https://github.com/uxlfoundation/oneTBB tbb && \
+#     cd tbb && mkdir build && cd build && \
+#     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+#           -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF \
+#           -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" .. && \
+#     cmake --build . && cmake --install . && rm -rf tbb
+
+# 6. Vulkan-Headers
+# RUN echo "Add Vulkan Header" && git clone --depth=1 -b v1.3.296 https://github.com/KhronosGroup/Vulkan-Headers.git vulkan && \
+#     cd vulkan && cmake -S . -B build -DVULKAN_HEADERS_ENABLE_TESTS=OFF && \
+#     cmake --install build && rm -rf vulkan
+
+# 7. OpenColorIO v2.5.0
+# RUN echo "Build OpenColorIO" && \
+#     git clone --branch v2.5.0 --depth=1 https://github.com/AcademySoftwareFoundation/OpenColorIO ocio && \
+#     mkdir -p ocio/build && cd ocio/build && \
+#     cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+#              -DBUILD_SHARED_LIBS=ON -DBUILD_DOCS=OFF -DOCIO_INSTALL_EXT_PACKAGES=MISSING \
+#              -DOCIO_BUILD_APPS=OFF -DOCIO_USE_OIIO_FOR_APPS=OFF -DOCIO_BUILD_PYTHON=ON \
+#              -DOCIO_BUILD_OPENFX=OFF -DOCIO_BUILD_GPU_TESTS=OFF -DOCIO_USE_HEADLESS=OFF \             
+#              -DOCIO_BUILD_TESTS=OFF -DOCIO_USE_SIMD=ON -DOCIO_USE_SSE2=ON -DOCIO_BUILD_DOCS=OFF \
+#              -DOCIO_WARNING_AS_ERROR=OFF && \
+#     cmake --build . && cmake --install . && rm -rf ocio
+
+# 8. OpenImageIO v3.0.6.1
+# RUN echo "Build OpenImageIO" && \
+#     git clone --branch v3.0.6.1 --depth=1 https://github.com/AcademySoftwareFoundation/OpenImageIO oiio && \
+#     mkdir -p oiio/build && cd oiio/build && \
+#     cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+#              -DUSE_OPENCOLORIO=ON -DUSE_WEBP=ON -DUSE_TBB=ON -DUSE_PYTHON=ON \
+#              -DUSE_OPENJPEG=ON -DOpenColorIO_DIR=/usr/local -DOpenImageIO_BUILD_MISSING_DEPS=all \
+#              -DBUILD_DOCS=OFF -DUSE_OPENVDB=OFF -DUSE_FREETYPE=OFF -DUSE_DCMTK=OFF \
+#              -DUSE_LIBHEIF=OFF -DOIIO_BUILD_TESTS=OFF -DBUILD_TESTING=OFF \
+#              -DSTOP_ON_WARNING=OFF -DUSE_QT=OFF -DUSE_GIF=OFF -DUSE_OPENCV=OFF \
+#              -DUSE_FFMPEG=OFF -DUSE_PTEX=OFF -DUSE_LIBRAW=OFF -DUSE_JXL=OFF && \
+#     cmake --build . && cmake --install . && rm -rf oiio
+
+
+
+# RUN apt-get update && \
+#     apt-get install -y software-properties-common && \
+#     add-apt-repository universe && \
+#     apt-get update && apt-get install -y \
+#     libembree-dev \
+#     libpipewire-0.3-dev \
+#     libspa-0.2-dev \
+#     libtbb-dev \
+#     libopenimageio-dev \
+#     libboost-all-dev \
+#     libspa-0.2-modules \
+#     libpipewire-0.3-dev \
+#     && rm -rf /var/lib/apt/lists/*
+
+ 
+   
+
+
+# 14. Embree4 v4.4.0
+# RUN echo "Building Embree" && \
+#     git clone --branch v4.4.0 --single-branch https://github.com/RenderKit/embree.git /tmp/embree && \
+#     mkdir -p /tmp/embree/build && cd /tmp/embree/build && \
+#     cmake .. -DCMAKE_BUILD_TYPE=Release \
+#     -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" \
+#     -DEMBREE_TUTORIALS=OFF \
+#     -DEMBREE_SYCL_SUPPORT=OFF \
+#     -DEMBREE_ISPC_SUPPORT=ON \
+#     -DEMBREE_ISPC_EXECUTABLE=/opt/ispc/bin/ispc \
+#     -DEMBREE_TESTING_INSTALL_TESTS=OFF && \
+#     make && make install && echo "Done Installing Embree4" && rm -rf /tmp/embree
+
+# 16. PipeWire v1.4.8
+# RUN git clone --branch 1.4.8 --depth=1 https://github.com/PipeWire/pipewire pipewire && \
+#     mkdir pipewire/build && cd pipewire/build && \
+#     meson setup . .. --buildtype=release -Dprefix=/usr/local --backend=ninja \
+#         -Dtests=disabled -Ddocs=disabled -Dexamples=disabled \
+#         -Dinstalled_tests=disabled -Dlibcamera=disabled -Dcompress-offload=disabled \
+#         -Djack=disabled -Decho-cancel-webrtc=disabled \
+#         -Daudiotestsrc=disabled -Dsnap=disabled && \
+#     meson compile -C . && meson install -C . && rm -rf pipewire
+
+# Symlink Embree4 headers for Embree3 references (OpenUSD requirement)
+#RUN ln -s /usr/local/include/embree4 /usr/local/include/embree3
+
+# 9. Intel OIDN v2.3.3
+# Intel OIDN v2.4.1 (from source)
+RUN echo "Build Image Denoiser OIDN" && \
+    apt-get update && apt-get install -y gcc-12 g++-12 && \
+    wget -q https://github.com/RenderKit/oidn/releases/download/v2.4.1/oidn-2.4.1.src.tar.gz \
+        -O oidn.tar.gz && \
+    mkdir oidn && \
+    tar -xzf oidn.tar.gz -C oidn --strip-components=1 && \
+    rm oidn.tar.gz && cd oidn && \
+    mkdir build && cd build && \
+    cmake .. -GNinja \
+        -DCMAKE_C_COMPILER=gcc-12 \
+        -DCMAKE_CXX_COMPILER=g++-12 \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DOIDN_APPS=OFF \
+        -DOIDN_DEVICE_HIP=OFF \
+        -DOIDN_DEVICE_CUDA=OFF \
+        -DOIDN_DEVICE_SYCL=OFF \
+        -DOIDN_DEVICE_METAL=OFF \
+        -DOIDN_INSTALL_DEPENDENCIES=ON \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+        -DISPC_EXECUTABLE=/opt/ispc/bin/ispc && \
+    cmake --build . && cmake --install . 
+#    && cd / && rm -rf oidn
+
+
+################################################################################
+# Stage "midbuilder" – adds MaterialX, OpenPGL, OpenSubdiv, Manifold, Embree4,
+# Alembic and PipeWire
+################################################################################
+FROM prebuilder AS midbuilder
+
+WORKDIR /tmp
+
+
+# 10. MaterialX v1.39.4
+RUN echo "Cloning MaterialX" && \
+    git clone -b v1.39.4 --depth=1 https://github.com/AcademySoftwareFoundation/MaterialX.git materialx && \
+    mkdir materialx/build && cd materialx/build && \
+    cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+             -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_TESTS=OFF \
+             -DMATERIALX_BUILD_VIEWER=OFF -DMATERIALX_BUILD_GRAPH_EDITOR=OFF \
+             -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" && \
+    cmake --build . && cmake --install . && rm -rf materialx
+
+# 11. OpenPGL v0.7.1
+RUN echo "Building OpenPGL" && \
+    git clone --branch v0.7.1 --single-branch https://github.com/RenderKit/openpgl openpgl && \
+    mkdir openpgl/build && cd openpgl/build && \
+    cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+             -DOPENPGL_ISA_NEON=ON -DOPENPGL_BUILD_TOOLS=OFF \
+             -DOPENPGL_EF_IMAGE_SPACE_GUIDING_BUFFER=OFF \
+             -DOPENPGL_TBB_ROOT=/usr/local && \
+    cmake --build . && cmake --install . && rm -rf openpgl
+
+# 12. OpenSubdiv
+# RUN echo "Building OpenSubdiv" && \
+#     git clone --depth=1 https://github.com/PixarAnimationStudios/OpenSubdiv OpenSubdiv && \
+#     mkdir OpenSubdiv/build && cd OpenSubdiv/build && \
+#     cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+#              -DTBB_ROOT=/usr/local \
+#              -DNO_TBB=0 -DNO_OPENCL=0 -DNO_OPENGL=0 \
+#              -DNO_OMP=1 -DNO_CUDA=1 \             
+#              -DNO_DOC=1 -DNO_EXAMPLES=1 -DNO_REGRESSION=1 -DNO_PTEX=1 \
+#              -DOSD_PATCH_SHADER_SOURCE_MSL=0 -DOSD_PATCH_SHADER_SOURCE_GLSL=1 -DOSD_PATCH_SHADER_SOURCE_HLSL=1 \
+#              && \
+#     cmake --build . && cmake --install . && rm -rf OpenSubdiv
+
+# 13. Manifold v3.2.1
+RUN echo "Building Manifold v3.2.1" && \
+    git clone -b v3.2.1 --single-branch https://github.com/elalish/manifold manifold && \
+    mkdir manifold/build && cd manifold/build && \
+    cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+             -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DMANIFOLD_DEBUG=OFF \
+             -DMANIFOLD_STRICT=ON -DMANIFOLD_PAR=ON -DMANIFOLD_CBIND=ON \
+             -DMANIFOLD_PYBIND=ON -DMANIFOLD_DOWNLOADS=ON \
+             -DMANIFOLD_CROSS_SECTION=ON -DFETCHCONTENT_QUIET=ON \
+             -DMANIFOLD_USE_BUILTIN_TBB=OFF -DMANIFOLD_USE_BUILTIN_NANOBIND=OFF -DMANIFOLD_USE_BUILTIN_CLIPPER2=ON \
+             -DClipper2_DIR=/usr/lib/aarch64-linux-gnu/cmake/Clipper2 \
+             -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" && \
+    cmake --build . && cmake --install . && rm -rf manifold
+
+
+
+# 15. Alembic v1.8.8
+RUN git clone -b 1.8.10 --depth=1 https://github.com/alembic/alembic alembic && \
+    mkdir alembic/build && cd alembic/build && \
+    cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release \
+             -DCMAKE_INSTALL_PREFIX=/usr/local -DUSE_TESTS=OFF \
+             -DALEMBIC_DEBUG_WARNINGS_AS_ERRORS=OFF \
+             -DCMAKE_CXX_FLAGS="-O2 -fno-lto" && \
+    cmake --build . && cmake --install . && rm -rf alembic
+
+
+
+################################################################################
+# Stage “final” – uses midbuilder as base and compiles OpenUSD v25.08
+################################################################################
+
+FROM midbuilder AS final
+
+WORKDIR /tmp
+
+RUN git clone --branch v25.08 --depth=1 https://github.com/PixarAnimationStudios/OpenUSD/ OpenUSD && \
+    mkdir OpenUSD/build && cd OpenUSD/build 
+    
+RUN cmake .. -GNinja -DCMAKE_INSTALL_PREFIX=/usr/local \
+             -DCMAKE_BUILD_TYPE=Release \
+             -DCMAKE_CXX_FLAGS="-Wno-error=stringop-overflow" \
+             -DTBB_ROOT=/usr/local \
+             -DEMBREE_INCLUDE_DIR=/usr/local/include/embree3 \
+             -DEMBREE_LIBRARY=/usr/local/lib/libembree4.so \
+             -DPXR_BUILD_MONOLITHIC=ON \ 
+             -DPXR_ENABLE_GL_SUPPORT=ON \
+             -DMaterialX_ROOT=/usr/local \
+             -DPXR_BUILD_EMBREE_PLUGIN=ON \
+             -DPXR_BUILD_ALEMBIC_PLUGIN=OFF \
+             -DPXR_ENABLE_PYTHON_SUPPORT=ON \
+             -DPXR_ENABLE_OPENVDB_SUPPORT=OFF \
+             -DPXR_BUILD_OPENCOLORIO_PLUGIN=ON \
+             -DPXR_ENABLE_MATERIALX_SUPPORT=OFF  \
+             -DPXR_BUILD_OPENIMAGEIO_PLUGIN=ON   \
+             -DPXR_ENABLE_OPENVDB_SUPPORT=OFF     \
+             -DPXR_BUILD_EXEC=OFF \             
+             -DPXR_BUILD_TESTS=OFF \
+             -PXR_BUILD_USDVIEW=OFF \
+             -DPXR_BUILD_ANIMX_TESTS=OFF \
+             -DPXR_BUILD_DRACO_PLUGIN=OFF \
+             -DPXR_BUILD_PRMAN_PLUGIN=OFF  \
+             -DPXR_BUILD_EXAMPLES=OFF \             
+             -DPXR_BUILD_USD_TOOLS=OFF \
+             -DPXR_BUILD_TUTORIALS=OFF  \
+             -DPXR_HEADLESS_TEST_MODE=OFF \
+             -DPXR_ENABLE_PTEX_SUPPORT=OFF \
+             -DPXR_ENABLE_METAL_SUPPORT=OFF \             
+             -DPXR_ENABLE_VULKAN_SUPPORT=OFF \
+             -PXR_ENABLE_HDF5_SUPPORT=OFF \          
+             -DPXR_ENABLE_OSL_SUPPORT=OFF  \
+             -DPXR_BUILD_DOCUMENTATION=OFF  \
+             -DPXR_BUILD_USD_VALIDATION=OFF  \        
+             -DPXR_PREFER_SAFETY_OVER_SPEED=OFF \
+             -DPXR_BUILD_HTML_DOCUMENTATION=OFF  \
+             -DPXR_BUILD_PYTHON_DOCUMENTATION=OFF  \
+             -DPXR_ENABLE_PRECOMPILED_HEADERS=OFF  \
+             -DPXR_STRICT_BUILD_MODE=OFF \
+             -DCMAKE_VERBOSE_MAKEFILE=ON && \
+    cmake --build . && cmake --install . && rm -rf OpenUSD
+
+# Common final steps
+WORKDIR /blender-git
+RUN useradd --create-home --shell /bin/bash builder && \
+    adduser builder sudo && \
+    echo 'builder ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+COPY --chown=builder:builder compile.sh /compile.sh
+RUN chmod +x /compile.sh
+
+ENTRYPOINT ["/compile.sh"]
+
